@@ -25,7 +25,7 @@ import adafruit_ccs811
 
 def cur_date_time(today, now, verb):
     #Get date and time
-    today = date.strftime(date.today(), '%m/%d/%y')
+    today = date.strftime(date.today(), '%Y/%m/%d')
     now = time.strftime('%I:%M:%S%p', time.localtime())
     
     if verb:
@@ -34,9 +34,9 @@ def cur_date_time(today, now, verb):
     return today, now
           
 
-def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now):
+def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now, fpath):
     #Append to csv file with collected data
-    with open('/home/pi/Desktop/Readings.csv', mode='a') as data_file:
+    with open(fpath, mode='a') as data_file:
         data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
         data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, tvoc])
         data_file.close()
@@ -60,13 +60,21 @@ def main(argv):
     i2c = busio.I2C(board.SCL, board.SDA)
     ccs811 = adafruit_ccs811.CCS811(i2c)
     
-    #Data variables initialization
+    #Initialize file path for readings
+    fpath = "/home/pi/MSD-P21422-BSF/Readings/"
+    #Initialize data variables
     in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc = 0, 0, 0, 0, 0, 0, 0, 0
     today, now = '0', '0'
-        
+
+    #Get today's date in YYYYmmdd format for file naming
+    file_name = date.strftime(date.today(), '%Y%m%d.csv')
+    
+    #Full_path = /home/pi/MSD-P21422-BSF/Readings/YYYYmmdd.csv
+    full_path = fpath + file_name
+
     #If the csv file does not exist, initialize it
-    if not path.exists('/home/pi/Desktop/Readings.csv'):
-        with open('/home/pi/Desktop/Readings.csv', mode='w') as data_file:
+    if not path.exists(full_path):
+        with open(full_path, mode='w') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
             data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2', 'TVOC'])
             data_file.close
@@ -78,9 +86,11 @@ def main(argv):
             pass
         else:
             today, now = cur_date_time(today, now, verb)
+            file_name = date.strftime(date.today(), '%Y%m%d.csv')
+            full_path = fpath + file_name
             in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc = \
                        sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, ccs811, co2, tvoc, verb)
-            write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now)
+            write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now, full_path)
             #relay.relay(in_temp_f, in_hum, co2, verb)
             
             #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes

@@ -50,11 +50,15 @@ def check_data(max_data, min_data, mid_data, curr_data, pin, device, verb):
     return
 
 
-#def check_co2(max_co2, min_co2, mid_co2, curr_co2, vent, verb):
-    #if too high
+#def check_co2(max_co2, min_co2, ideal_co2, curr_co2, vent_pin, vent, verb):
+    #if curr_co2 >= ideal_co2 && !vent
+        #GPIO.output(vent_pin, 1)
         #open vent
-    #if acceptable or too low and vent is open
+    #if curr_co2 < ideal_co2 - 250 && vent
+        #GPIO.output(vent_pin, 0)
         #close vent
+    #if curr_co2 <= min_co2 || curr_co2 >= max_co3
+        #send alert
     #else
         #pass
     #return
@@ -78,6 +82,7 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
         #0 is low or off, 1 is high or on
     #Verb is the verbose flag, which determines if printing to the shell is done
     
+
     max_temp = 100
     ideal_temp = 70
     min_temp = 55
@@ -104,18 +109,18 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     #Check Humidity
         #check_data(max_hum, min_hum, ideal_hum, curr_hum, hum_pin, humidifier, verb)
     #Check CO2
-        #def co2_vent(max co2, min co2)
+        #def check_co2(max_co2, min_co2, ideal_co2, curr_co2, vent_pin, vent, verb)
     #Check light
         #breeding_light(time?)
 
-##def init():
-##    GPIO.setmode(GPIO.BCM)
-##    #first time initialization code
-##    GPIO.setup(16, GPIO.OUT)
-##    GPIO.setup(20, GPIO.OUT)
-##    GPIO.setup(21, GPIO.OUT)
-##    GPIO.setup(25, GPIO.OUT)
-##    return
+def init():
+    GPIO.setmode(GPIO.BCM)
+    #first time initialization code
+    GPIO.setup(16, GPIO.OUT)
+    GPIO.setup(20, GPIO.OUT)
+    GPIO.setup(21, GPIO.OUT)
+    GPIO.setup(25, GPIO.OUT)
+    return
 ##    
 ##if __name__ == '__main__':
 ##    main()
