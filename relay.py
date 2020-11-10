@@ -20,33 +20,44 @@
 
 import RPi.GPIO as GPIO
 
-def check_data(max_data, min_data, mid_data, curr_data, pin, device, verb):
-    #check_data() contains the logic to turn devices on or off according the current data being recieved
+def check_data(d_max, d_min, d_curr, pin, device, verb):
+    #A range is necessary to prevent the relay from flipping continually as the
+    # temp or humidity hovers around d_ideal. For example, if d_curr is 71 F then
+    # the heater will turn off, then turn on again if d_curr falls to 69 F, only
+    # to turn off when d_curr rises to 71 again.
+    #As the min to max range for temp is 55 F to 100 F, and humidity is
+    # 50% to 100%, the same ideal range will be used for both:
+    # 65 %/F to 80 %/F
+    h_ideal = 80
+    m_ideal = 70
+    l_ideal = 65
     
-    #If data (temp/hum) is too low and device (heater/humidifier) is not already on
-    if (curr_data < min_data) & (device is False):
-        #turn on the device using pin
-        #GPIO.setmode(pin, 1)
-        if verb:
-            print("Data value is too low. Turning on device.")
-    #If data is too high
-    elif (curr_data > max_data):
-        #Send alert, data is over max value (too high temp/too much humidity)
-        #if device is on
-        if device:
-            pass
-            #turn off device
-            #GPIO.setmode(pin, 0)
-        if verb: 
-            print("Data value is too high")
-    #If data is at acceptable level and heater is on
-    elif (curr_data == mid_data) & device:
-        #turn off the device
-        #GPIO.output(pin, 0)
-        if verb:
-            print("Acceptable data value reached. Turning device off.")  
+    #If the device (heater/humidifier) is on
+    if device is True:
+        #if the current temp/hum is at or above the higher end of the range
+        if d_curr >= h_ideal:
+            #Turn the heater/humidifier off
+            GPIO.setmode(pin, 0)
+            #If the current temp/hum is above max value, send an alert
+            if d_curr >= d_max:
+                print("Alert! Temperature/Humidity is too high.")
+            if verb is True:
+                print("Heater/Humidifier has been turned off.")
+                
+    #if the heater/humidifier is off
+    elif device is False:
+        #if the current temp/hum is below the lower end of the range
+        if d_curr < l_ideal:
+            #turn the heater/humidifier off
+            GPIO.setmode(pin, 1)
+            #if temp/hum is below minimum, send an alert
+            if d_curr < d_min:
+                print("Alert! Temperature/Humiditiy is too low.")
+            if verb is True:
+                print("Heater/Humidifier has been turned on.")
     else:
-        pass
+        #For debugging purposes
+        print("device boolean is NULL")
     return
 
 
@@ -84,13 +95,11 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     
 
     max_temp = 100
-    ideal_temp = 70
     min_temp = 55
     heat_pin = 16
     #heater = GPIO.input(heat_pin)
     
     max_hum = 100
-    ideal_hum = 70
     min_hum = 50
     hum_pin = 20
     #humidifier = GPIO.input(hum_pin)
@@ -105,9 +114,9 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     
     #psuedo code
     #Check Temp
-        #check_data(max_temp, min_temp, ideal_temp, curr_temp, heat_pin, heater, verb)
+        #check_data(max_temp, min_temp, curr_temp, heat_pin, heater, verb)
     #Check Humidity
-        #check_data(max_hum, min_hum, ideal_hum, curr_hum, hum_pin, humidifier, verb)
+        #check_data(max_hum, min_hum, curr_hum, hum_pin, humidifier, verb)
     #Check CO2
         #def check_co2(max_co2, min_co2, ideal_co2, curr_co2, vent_pin, vent, verb)
     #Check light
