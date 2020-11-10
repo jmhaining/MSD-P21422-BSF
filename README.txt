@@ -16,7 +16,7 @@ To run the program from the shell, navigate to the folder containing main.py
 and use the following command:
 
 ```
-	python3 main.py (-v[erbose])
+	python3.5 main.py (-v[erbose])
 ```
 
 -v flag is an optional argument to determine if the program prints to the 
@@ -40,14 +40,14 @@ If the program is running in the background and you need to kill it, first obtai
 list of currently running processes by running the following command
 
 ```
-ps aux | grep python
+	ps aux | grep python3.5
 ```
 A list of currently running python processes should appear. You can determine which is
 the program by the filepath listed in the processes.
 Find the PID, which is the number in the second column, and run the following command
 
 ```
-sudo kill <PID>
+	sudo kill <PID>
 ```
 
 Run the 'ps aux' command again to confirm the program is killed
