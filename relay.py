@@ -20,7 +20,7 @@
 
 import RPi.GPIO as GPIO
 
-def check_data(d_max, d_min, d_curr, pin, device, verb):
+def check_data(d_max, d_min, d_curr, pin, verb):
     #A range is necessary to prevent the relay from flipping continually as the
     # temp or humidity hovers around d_ideal. For example, if d_curr is 71 F then
     # the heater will turn off, then turn on again if d_curr falls to 69 F, only
@@ -32,9 +32,15 @@ def check_data(d_max, d_min, d_curr, pin, device, verb):
     m_ideal = 70
     l_ideal = 65
     
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pin, GPIO.OUT)
+    
+    status = GPIO.input(16)
+    
     #If the device (heater/humidifier) is on
-    if device is True:
+    if status:
         #if the current temp/hum is at or above the higher end of the range
+        print("Current temp/hum is higher than ideal")
         if d_curr >= h_ideal:
             #Turn the heater/humidifier off
             GPIO.setmode(pin, 0)
@@ -43,11 +49,14 @@ def check_data(d_max, d_min, d_curr, pin, device, verb):
                 print("Alert! Temperature/Humidity is too high.")
             if verb is True:
                 print("Heater/Humidifier has been turned off.")
+        else:
+            print("Current temp/hum within ideal range")
                 
     #if the heater/humidifier is off
-    elif device is False:
+    elif not status:
         #if the current temp/hum is below the lower end of the range
         if d_curr < l_ideal:
+            print("Current temp/hum is lower than ideal")
             #turn the heater/humidifier off
             GPIO.setmode(pin, 1)
             #if temp/hum is below minimum, send an alert
@@ -55,9 +64,12 @@ def check_data(d_max, d_min, d_curr, pin, device, verb):
                 print("Alert! Temperature/Humiditiy is too low.")
             if verb is True:
                 print("Heater/Humidifier has been turned on.")
+        else:
+            print("Current temp/hum within ideal range.")
     else:
         #For debugging purposes
         print("device boolean is NULL")
+    GPIO.cleanup()
     return
 
 
@@ -92,46 +104,41 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     #Heater/humidifier/vent are the booleans indicating current status of the devices
         #0 is low or off, 1 is high or on
     #Verb is the verbose flag, which determines if printing to the shell is done
-    
 
     max_temp = 100
     min_temp = 55
     heat_pin = 16
-    #heater = GPIO.input(heat_pin)
     
     max_hum = 100
     min_hum = 50
     hum_pin = 20
-    #humidifier = GPIO.input(hum_pin)
     
     max_co2 = 5000
     ideal_co2 = 2500
     min_co2 = 2000
     vent_pin = 21
-    #vent = GPIO.input(vent_pin)
     
-    print("Testing... temp:", curr_temp)
+    #Check Temperature and control heater
+    check_data(max_temp, min_temp, curr_temp, heat_pin, verb)
+    #Check humidiity and control humidifier
+    check_data(max_hum, min_hum, curr_hum, hum_pin, verb)
     
-    #psuedo code
-    #Check Temp
-        #check_data(max_temp, min_temp, curr_temp, heat_pin, heater, verb)
-    #Check Humidity
-        #check_data(max_hum, min_hum, curr_hum, hum_pin, humidifier, verb)
     #Check CO2
         #def check_co2(max_co2, min_co2, ideal_co2, curr_co2, vent_pin, vent, verb)
     #Check light
         #breeding_light(time?)
 
 def init():
-    GPIO.setmode(GPIO.BCM)
     #first time initialization code
-    GPIO.setup(16, GPIO.OUT)
-    GPIO.setup(20, GPIO.OUT)
-    GPIO.setup(21, GPIO.OUT)
-    GPIO.setup(25, GPIO.OUT)
+    print("Initializing relays...")
+    pin_list = [16, 20, 21, 25]
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pin_list, GPIO.OUT)
+    GPIO.output(pin_list, GPIO.LOW)
+    print("Initializing completed.")
     return
-##    
-##if __name__ == '__main__':
-##    main()
-##else:
-##    init()
+    
+if __name__ == '__main__':
+    pass
+else:
+    init()

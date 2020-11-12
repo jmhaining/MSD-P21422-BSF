@@ -14,7 +14,7 @@
 from datetime import date
 from os import path
 import RPi.GPIO as GPIO
-#import relay
+import relay
 import sensor
 import sys
 import csv
@@ -62,8 +62,7 @@ def main(argv):
             print("Invalid argument. Valid argument(s): -v[erbose]")
     else:
         verb = False
-    
-    #relay.init()
+
     #Intialize co2 sensor
     i2c = busio.I2C(board.SCL, board.SDA)
     ccs811 = adafruit_ccs811.CCS811(i2c)
@@ -85,7 +84,7 @@ def main(argv):
             in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc = \
                        sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, ccs811, co2, tvoc, verb)
             write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now, full_path)
-            #relay.relay(in_temp_f, in_hum, co2, verb)
+            relay.relay(in_temp_f, in_hum, co2, verb)
             
             #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
             time.sleep(1800.0)
