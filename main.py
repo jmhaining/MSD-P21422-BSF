@@ -35,11 +35,19 @@ def cur_date_time(today, now, verb):
           
 
 def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now, fpath):
-    #Append to csv file with collected data
-    with open(fpath, mode='a') as data_file:
-        data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-        data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, tvoc])
-        data_file.close()
+    #If the file does not exist, create it, add headers, and add first line of data
+    if not path.exists(fpath):
+        with open(fpath, mode='a') as data_file:
+            data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2', 'TVOC'])
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, tvoc])
+            data_file.close
+    #Otherwise, just append new line of data
+    else:
+        with open(fpath, mode='a') as data_file:
+            data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, tvoc])
+            data_file.close()
     return
 
 
@@ -62,24 +70,10 @@ def main(argv):
     
     #Initialize file path for readings
     fpath = "/home/pi/MSD-P21422-BSF/Readings/"
+    
     #Initialize data variables
     in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc = 0, 0, 0, 0, 0, 0, 0, 0
     today, now = '0', '0'
-
-    #Get today's date in YYYYmmdd format for file naming
-    file_name = date.strftime(date.today(), '%Y%m%d.csv')
-    
-    #Full_path = /home/pi/MSD-P21422-BSF/Readings/YYYYmmdd.csv
-    full_path = fpath + file_name
-
-    #If the csv file does not exist, initialize it
-    if not path.exists(full_path):
-        with open(full_path, mode='w') as data_file:
-            data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2', 'TVOC'])
-            data_file.close
-    else:
-        pass
     
     while True:
         if not ccs811.data_ready:
