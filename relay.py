@@ -35,7 +35,7 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pin, GPIO.OUT)
     
-    status = GPIO.input(16)
+    status = GPIO.input(pin)
     
     #If the device (heater/humidifier) is on
     if status:
