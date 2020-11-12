@@ -136,6 +136,7 @@ def init():
     GPIO.setup(pin_list, GPIO.OUT)
     GPIO.output(pin_list, GPIO.LOW)
     print("Initializing completed.")
+    GPIO.cleanup()
     return
     
 if __name__ == '__main__':
