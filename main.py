@@ -14,14 +14,12 @@
 from datetime import date
 from os import path
 import RPi.GPIO as GPIO
-import relay
+#import relay
 import sensor
 import sys
 import csv
 import time
 import board
-import busio
-import adafruit_ccs811
 
 def cur_date_time(today, now, verb):
     #Get date and time
@@ -34,19 +32,19 @@ def cur_date_time(today, now, verb):
     return today, now
           
 
-def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now, fpath):
+def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, fpath):
     #If the file does not exist, create it, add headers, and add first line of data
     if not path.exists(fpath):
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2', 'TVOC'])
-            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, tvoc])
+            data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2'])
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2])
             data_file.close
     #Otherwise, just append new line of data
     else:
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, tvoc])
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2])
             data_file.close()
     return
 
@@ -62,16 +60,12 @@ def main(argv):
             print("Invalid argument. Valid argument(s): -v[erbose]")
     else:
         verb = False
-
-    #Intialize co2 sensor
-    i2c = busio.I2C(board.SCL, board.SDA)
-    ccs811 = adafruit_ccs811.CCS811(i2c)
     
     #Initialize file path for readings
     fpath = "/home/pi/MSD-P21422-BSF/Readings/"
     
     #Initialize data variables
-    in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc = 0, 0, 0, 0, 0, 0, 0, 0
+    in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = 0, 0, 0, 0, 0, 0, 0
     today, now = '0', '0'
     
     while True:
@@ -81,10 +75,10 @@ def main(argv):
             today, now = cur_date_time(today, now, verb)
             file_name = date.strftime(date.today(), '%Y%m%d.csv')
             full_path = fpath + file_name
-            in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc = \
-                       sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, ccs811, co2, tvoc, verb)
-            write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, tvoc, today, now, full_path)
-            relay.relay(in_temp_f, in_hum, co2, verb)
+            in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = \
+                       sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
+            write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, full_path)
+            #relay.relay(in_temp_f, in_hum, co2, verb)
             
             #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
             time.sleep(1800.0)
