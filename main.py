@@ -69,19 +69,16 @@ def main(argv):
     today, now = '0', '0'
     
     while True:
-        if not ccs811.data_ready:
-            pass
-        else:
-            today, now = cur_date_time(today, now, verb)
-            file_name = date.strftime(date.today(), '%Y%m%d.csv')
-            full_path = fpath + file_name
-            in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = \
-                       sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
-            write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, full_path)
-            #relay.relay(in_temp_f, in_hum, co2, verb)
+        today, now = cur_date_time(today, now, verb)
+        file_name = date.strftime(date.today(), '%Y%m%d.csv')
+        full_path = fpath + file_name
+        in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = \
+                    sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
+        write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, full_path)
+        #relay.relay(in_temp_f, in_hum, co2, verb)
             
-            #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
-            time.sleep(1800.0)
+        #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
+        time.sleep(1800.0)
     return
 
 if __name__ == '__main__':
