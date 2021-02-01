@@ -23,18 +23,18 @@ import dropbox
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
 
-# Define access token, local path, and dropbox path - CHANGE THIS
-TOKEN = 'cOosVB7gbxsAAAAAAAAAARCfIPLFPsWZ9ywvtdV6ElNo20CPaf_ySk-mBsIl82uU'
-LOCALFILE = '/Users/joshnoble/Downloads/MSD/test_doc.csv'
-DB_PATH = '/test_doc123.csv'
+# Define access token, local path, and dropbox path - Moved to main.py
+# TOKEN = 'sl.AqesqhFtrGLExOEaCZfVqqo91tKyymK3fm94EA0Wwo1HhBlMU8-aHEbUrovvIsZBz4RL7bWF4xhw_sxW3x9LNmTvBk2KQJqb0BMsFlONRsrKo8AFL4paj8IStc-wm4u1q5_WTuq2gDg'
+# LOCALFILE = '/Users/joshnoble/Downloads/test_doc.csv'
+# FILE = '/test_doc.csv'
 
 # Upload LOCALFILE to Dropbox
-def upload():
-    with open(LOCALFILE, 'rb') as f:
+def upload(filename, full_path):
+    with open(full_path, 'rb') as f:
         # WriteMode=overwrite used to overwrite files of the same name
-        print("Uploading " + LOCALFILE + " to Dropbox as " + DB_PATH + "...")
+        print("Uploading " + full_path + " to Dropbox as " + filename + "...")
         try:
-            dbx.files_upload(f.read(), DB_PATH, mode=WriteMode('overwrite'))
+            dbx.files_upload(f.read(), filename, mode=WriteMode('overwrite'))
         except ApiError as err:
             # Checks for error where user doesn't have enough Dropbox space to upload this file
             if (err.error.is_path() and
@@ -62,31 +62,32 @@ def deleteOldFiles():
     # Need to add code here
 
 
-if __name__ == '__main__':
-    # Check for an access token
-    if (len(TOKEN) == 0):
-        sys.exit("ERROR: Looks like you didn't add your access token."
-	         "Go to https://www.dropbox.com/developers/apps. Generate"
-		 "a token in app settings and add it to line 24")
+# Moved to main.py
+# if __name__ == '__main__':
+#     # Check for an access token
+#     if (len(TOKEN) == 0):
+#         sys.exit("ERROR: Looks like you didn't add your access token."
+# 	        "Go to https://www.dropbox.com/developers/apps. Generate"
+# 		    "a token in app settings and add it to line 24")
 
-    # Create an instance of a Dropbox class, which can make requests to the API.
-    print("Creating a Dropbox object...")
-    dbx = dropbox.Dropbox(TOKEN)
+#     # Create an instance of a Dropbox class, which can make requests to the API.
+#     print("Creating a Dropbox object...")
+#     dbx = dropbox.Dropbox(TOKEN)
 
-    # Check that the access token is valid
-    try:
-        dbx.users_get_current_account()
-    except AuthError as err:
-        sys.exit("ERROR: Invalid access token; try re-generating an"
-		 "access token from the app console on the web.")
+#     # Check that the access token is valid
+#     try:
+#         dbx.users_get_current_account()
+#     except AuthError as err:
+#         sys.exit("ERROR: Invalid access token; try re-generating an"
+# 		 "access token from the app console on the web.")
 
-    #try:
-    #    checkFileDetails()
-    #except Error as err:
-    #    sys.exit("Error while checking file details")
+#     #try:
+#     #    checkFileDetails()
+#     #except Error as err:
+#     #    sys.exit("Error while checking file details")
 
-    print("Uploading the file...")
-    # Upload the file to Dropbox
-    upload()
+#     print("Uploading the file...")
+#     # Upload the file to Dropbox
+#     upload(FILE, LOCALFILE)
 
-    print("Upload successful!")
+#     print("Upload successful!")
