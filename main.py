@@ -20,8 +20,8 @@ import sys
 import csv
 import time
 import board
-import busio
-import adafruit_ccs811
+#import busio
+#import adafruit_ccs811
 from dbox_upload import upload
 import dropbox
 from dropbox.files import WriteMode
@@ -29,7 +29,7 @@ from dropbox.exceptions import ApiError, AuthError
 
 
 # Dropbox access token - set to never expire
-TOKEN = 'sl.AqesqhFtrGLExOEaCZfVqqo91tKyymK3fm94EA0Wwo1HhBlMU8-aHEbUrovvIsZBz4RL7bWF4xhw_sxW3x9LNmTvBk2KQJqb0BMsFlONRsrKo8AFL4paj8IStc-wm4u1q5_WTuq2gDg'
+TOKEN = 'pPcay-xMBfcAAAAAAAAAAbT1MInaprDWBTF9XVLh5YOkZBG5Pms0OVt4MHclDTBX'
 
 def cur_date_time(today, now, verb):
     #Get date and time
@@ -107,8 +107,9 @@ def main(argv):
 
         # Upload the file to Dropbox
         print("Uploading the file...")
-        upload(file_name, full_path)
-
+        upload('/' + file_name, full_path, dbx)
+        print("Upload successful")
+        
         #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
         time.sleep(1800.0)
     return

@@ -1,1 +1,70 @@
 test
+Creating a Dropbox object...
+ERROR: Invalid access token; try re-generating anaccess token from the app console on the web.
+Creating a Dropbox object...
+ERROR: Invalid access token; try re-generating anaccess token from the app console on the web.
+Creating a Dropbox object...
+ERROR: Invalid access token; try re-generating anaccess token from the app console on the web.
+Creating a Dropbox object...
+Traceback (most recent call last):
+  File "/home/pi/MSD-P21422-BSF/main.py", line 117, in <module>
+    main(sys.argv[0:])
+  File "/home/pi/MSD-P21422-BSF/main.py", line 103, in main
+    sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
+  File "/home/pi/MSD-P21422-BSF/sensor.py", line 75, in sensor
+    out_temp_f, out_temp_c, out_hum = sht_outdoor_sensor(out_temp_f, out_temp_c, out_hum, verb)
+  File "/home/pi/MSD-P21422-BSF/sensor.py", line 43, in sht_outdoor_sensor
+    with SHT1x(22, 27, gpio_mode=GPIO.BCM) as sensor:
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 78, in __init__
+    self.initialize_sensor()
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 157, in initialize_sensor
+    self._write_status_register(mask)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 454, in _write_status_register
+    self._send_command(measurement=False)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 254, in _send_command
+    self._get_ack(command_name)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 397, in _get_ack
+    raise SHT1xError(message)
+pi_sht1x.sht1x.SHT1xError: SHT1x failed to properly receive command [['WriteStatusRegister'] - 00000110]
+Creating a Dropbox object...
+Traceback (most recent call last):
+  File "/home/pi/MSD-P21422-BSF/main.py", line 118, in <module>
+    main(sys.argv[0:])
+  File "/home/pi/MSD-P21422-BSF/main.py", line 103, in main
+    sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
+  File "/home/pi/MSD-P21422-BSF/sensor.py", line 75, in sensor
+    out_temp_f, out_temp_c, out_hum = sht_outdoor_sensor(out_temp_f, out_temp_c, out_hum, verb)
+  File "/home/pi/MSD-P21422-BSF/sensor.py", line 43, in sht_outdoor_sensor
+    with SHT1x(22, 27, gpio_mode=GPIO.BCM) as sensor:
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 78, in __init__
+    self.initialize_sensor()
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 157, in initialize_sensor
+    self._write_status_register(mask)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 454, in _write_status_register
+    self._send_command(measurement=False)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 254, in _send_command
+    self._get_ack(command_name)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 397, in _get_ack
+    raise SHT1xError(message)
+pi_sht1x.sht1x.SHT1xError: SHT1x failed to properly receive command [['WriteStatusRegister'] - 00000110]
+Creating a Dropbox object...
+Traceback (most recent call last):
+  File "/home/pi/MSD-P21422-BSF/main.py", line 118, in <module>
+    main(sys.argv[0:])
+  File "/home/pi/MSD-P21422-BSF/main.py", line 103, in main
+    sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
+  File "/home/pi/MSD-P21422-BSF/sensor.py", line 75, in sensor
+    out_temp_f, out_temp_c, out_hum = sht_outdoor_sensor(out_temp_f, out_temp_c, out_hum, verb)
+  File "/home/pi/MSD-P21422-BSF/sensor.py", line 43, in sht_outdoor_sensor
+    with SHT1x(22, 27, gpio_mode=GPIO.BCM) as sensor:
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 78, in __init__
+    self.initialize_sensor()
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 157, in initialize_sensor
+    self._write_status_register(mask)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 454, in _write_status_register
+    self._send_command(measurement=False)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 254, in _send_command
+    self._get_ack(command_name)
+  File "/home/pi/.local/lib/python3.5/site-packages/pi_sht1x/sht1x.py", line 397, in _get_ack
+    raise SHT1xError(message)
+pi_sht1x.sht1x.SHT1xError: SHT1x failed to properly receive command [['WriteStatusRegister'] - 00000110]

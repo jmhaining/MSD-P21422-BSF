@@ -29,7 +29,7 @@ from dropbox.exceptions import ApiError, AuthError
 # FILE = '/test_doc.csv'
 
 # Upload LOCALFILE to Dropbox
-def upload(filename, full_path):
+def upload(filename, full_path, dbx):
     with open(full_path, 'rb') as f:
         # WriteMode=overwrite used to overwrite files of the same name
         print("Uploading " + full_path + " to Dropbox as " + filename + "...")
