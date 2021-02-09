@@ -14,14 +14,12 @@
 from datetime import date
 from os import path
 import RPi.GPIO as GPIO
-#import relay
+import relay
 import sensor
 import sys
 import csv
 import time
 import board
-#import busio
-#import adafruit_ccs811
 from dbox_upload import upload
 import dropbox
 from dropbox.files import WriteMode
@@ -29,7 +27,7 @@ from dropbox.exceptions import ApiError, AuthError
 
 
 # Dropbox access token - set to never expire
-TOKEN = 'pPcay-xMBfcAAAAAAAAAAbT1MInaprDWBTF9XVLh5YOkZBG5Pms0OVt4MHclDTBX'
+TOKEN = 'y5vSScwrmDAAAAAAAAAAAfw7zpeCDyI7xxWwCnaqaf0ti4nlFbXU4Kuft4YIE_2m'
 
 def cur_date_time(today, now, verb):
     #Get date and time
@@ -43,7 +41,8 @@ def cur_date_time(today, now, verb):
           
 
 def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, fpath):
-    #If the file does not exist, create it, add headers, and add first line of data
+    #If the file does not exist, create it, add headers, and add first line of data    
+    #if Yq0EmD6qnQgAAAAAAAAAAU7N34kJ8oe0pIsk5E3haQiD7w_3TJwf_Oaqk9ITdG33 path.exists(fpath): # not sure why token was used here, commented out 2/8 - JN
     if not path.exists(fpath):
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
@@ -80,9 +79,10 @@ def main(argv):
 
     # Initialize Dropbox link; check for access token
     if (len(TOKEN) == 0):
-        sys.exit("ERROR: Looks like you didn't add your access token."
-	        "Go to https://www.dropbox.com/developers/apps. Generate"
-		    "a token in app settings and add it to line 24")
+        sys.exit("ERROR: Looks like the Dropbox access token is missing or expired."
+	        "Go to https://www.dropbox.com/developers/apps. Login and click on the" 
+		"MSD-21422 app. Go to settings, generate a new access code and copy it"
+		"in line 30")
 
     # Create an instance of a Dropbox class, which can make requests to the API.
     print("Creating a Dropbox object...")
@@ -102,7 +102,7 @@ def main(argv):
         in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = \
                     sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
         write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, full_path)
-        #relay.relay(in_temp_f, in_hum, co2, verb)
+        relay.relay(in_temp_f, in_hum, co2, verb)
             
 
         # Upload the file to Dropbox
@@ -111,7 +111,7 @@ def main(argv):
         print("Upload successful")
         
         #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
-        time.sleep(1800.0)
+        time.sleep(1799.0)
     return
 
 if __name__ == '__main__':

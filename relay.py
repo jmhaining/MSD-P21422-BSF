@@ -35,6 +35,7 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pin, GPIO.OUT)
     
+    #Get the current status of the heater/humidifier
     status = GPIO.input(pin)
     
     #If the device (heater/humidifier) is on
@@ -43,12 +44,12 @@ def check_data(d_max, d_min, d_curr, pin, verb):
         print("Current temp/hum is higher than ideal")
         if d_curr >= h_ideal:
             #Turn the heater/humidifier off
-            GPIO.setmode(pin, 0)
+            GPIO.output(pin, 0)
             #If the current temp/hum is above max value, send an alert
-            if d_curr >= d_max:
-                print("Alert! Temperature/Humidity is too high.")
-            if verb is True:
-                print("Heater/Humidifier has been turned off.")
+            #if d_curr >= d_max:
+                #print("Alert! Temperature/Humidity is too high.")
+            #if verb is True:
+                #print("Heater/Humidifier has been turned off.")
         else:
             print("Current temp/hum within ideal range")
                 
@@ -57,13 +58,13 @@ def check_data(d_max, d_min, d_curr, pin, verb):
         #if the current temp/hum is below the lower end of the range
         if d_curr < l_ideal:
             print("Current temp/hum is lower than ideal")
-            #turn the heater/humidifier off
-            GPIO.setmode(pin, 1)
+            #turn the heater/humidifier on
+            GPIO.output(pin, 1)
             #if temp/hum is below minimum, send an alert
-            if d_curr < d_min:
-                print("Alert! Temperature/Humiditiy is too low.")
-            if verb is True:
-                print("Heater/Humidifier has been turned on.")
+            #if d_curr < d_min:
+                #print("Alert! Temperature/Humiditiy is too low.")
+            #if verb is True:
+                #print("Heater/Humidifier has been turned on.")
         else:
             print("Current temp/hum within ideal range.")
     else:
@@ -73,18 +74,51 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     return
 
 
-#def check_co2(max_co2, min_co2, ideal_co2, curr_co2, vent_pin, vent, verb):
-    #if curr_co2 >= ideal_co2 && !vent
-        #GPIO.output(vent_pin, 1)
-        #open vent
-    #if curr_co2 < ideal_co2 - 250 && vent
-        #GPIO.output(vent_pin, 0)
-        #close vent
-    #if curr_co2 <= min_co2 || curr_co2 >= max_co3
-        #send alert
-    #else
-        #pass
-    #return
+def check_co2(max_co2, min_co2, curr_co2, pin, verb):
+    
+    h_ideal = 1800
+    m_ideal = 1500
+    l_ideal = 1300
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pin, GPIO.OUT)
+    
+    #Get the current status of the vent fan
+    status = GPIO.input(pin)
+    
+    #If the vent van is off
+    if not status:
+        #if the current co2 is at or above the higher end of the range
+        print("Current Co2 is higher than ideal")
+        if curr_co2 >= h_ideal:
+            #Turn the fan on
+            GPIO.output(pin, 1)
+            #If the current co2 is above max value, send an alert
+            #if curr_co2 >= d_max:
+                #print("Alert! Co2 is too high.")
+            #if verb is True:
+                #print("Fan has been turned on.")
+        else:
+            print("Current co2 within ideal range")
+                
+    #if the vent fan is on
+    elif status:
+        #if the current co2 is below the lower end of the range
+        if curr_co2 < l_ideal:
+            print("Current co2 is lower than ideal")
+            #turn the fan off
+            GPIO.output(pin, 0)
+            #if co2 is below minimum, send an alert
+            if d_curr < d_min:
+                print("Alert! Co2 is too low.")
+            if verb is True:
+                print("Van has been turned off.")
+        else:
+            print("Current co2 within ideal range.")
+    else:
+        #For debugging purposes
+        print("device boolean is NULL")
+    GPIO.cleanup()
+    return
 
 #def breeding_light(verb)
     #check 1
@@ -113,18 +147,17 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     min_hum = 50
     hum_pin = 20
     
-    max_co2 = 5000
-    ideal_co2 = 2500
-    min_co2 = 2000
+    max_co2 = 2000
+    ideal_co2 = 1500
+    min_co2 = 1000
     vent_pin = 21
     
     #Check Temperature and control heater
     check_data(max_temp, min_temp, curr_temp, heat_pin, verb)
     #Check humidiity and control humidifier
     check_data(max_hum, min_hum, curr_hum, hum_pin, verb)
-    
     #Check CO2
-        #def check_co2(max_co2, min_co2, ideal_co2, curr_co2, vent_pin, vent, verb)
+    check_co2(max_co2, min_co2, curr_co2, vent_pin, verb)
     #Check light
         #breeding_light(time?)
 

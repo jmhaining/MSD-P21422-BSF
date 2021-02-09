@@ -17,6 +17,7 @@ from pi_sht1x import SHT1x
 import RPi.GPIO as GPIO
 import board
 import serial
+import time
 
 def c_to_f(temp_c):
     #Convert Celcius to Fahrenheit and round to 2 decimal places
@@ -53,26 +54,32 @@ def sht_outdoor_sensor(out_temp_f, out_temp_c, out_hum, verb):
     return out_temp_f, out_temp_c, out_hum
 
 
-def co2_sensor():
+def co2_sensor(verb):
     #Get the readings from the Co2 sensor
-    mult = 10 # 20% sensors requires a multiplier
+    #mult = 0 # 20% sensors requires a multiplier
     ser = serial.Serial("/dev/serial0")
-    ser.write(('M 4\r\n').encode()) # set display mode to show only CO2
-    ser.write(('K 2\r\n').encode()) # set  operating mode
+    ser.write(('M 4\r\n').encode())
+    ser.write(('K 2\r\n').encode())
     ser.flushInput()
-    co2 = fltCo2 * mult
+    time.sleep(1)
     
+    ser.write(str.encode("Z\r\n"))
+    resp = ser.read(10)
+    resp = resp[:8]
+    flt = resp[2:]
+
+    fltCo2 = float((resp[2:]).strip())
     #Print the readings,
     if verb:
-        print("CO2 PPM = ", fltCo2  * mult)
+        print("CO2 PPM = ", fltCo2)
         print("\n")
         
-    return co2
+    return fltCo2
 
 def sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb):
  
     in_temp_f, in_temp_c, in_hum = sht_indoor_sensor(in_temp_f, in_temp_c, in_hum, verb)
     out_temp_f, out_temp_c, out_hum = sht_outdoor_sensor(out_temp_f, out_temp_c, out_hum, verb)
-    co2 = 0 #co2_sensor()
+    co2 = co2_sensor(verb)
             
     return in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2
