@@ -27,7 +27,7 @@ from dropbox.exceptions import ApiError, AuthError
 
 
 # Dropbox access token - set to never expire
-TOKEN = 'y5vSScwrmDAAAAAAAAAAAfw7zpeCDyI7xxWwCnaqaf0ti4nlFbXU4Kuft4YIE_2m'
+TOKEN = 'J9guVvDpzgkAAAAAAAAAAVXwt_6nV4NgIRlFwaxZuIYDRbTQwmR3mBiM4x0vVMUo'
 
 def cur_date_time(today, now, verb):
     #Get date and time

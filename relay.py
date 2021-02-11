@@ -32,6 +32,16 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     m_ideal = 70
     l_ideal = 65
     
+    if pin == 16:
+        dev = "heater"
+        val = "temperature"
+    elif pin == 20:
+        dev = "humidifier"
+        val = "humidity"
+    else:
+        dev = "N/A"
+        val = "N/A"
+    
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pin, GPIO.OUT)
     
@@ -41,36 +51,35 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     #If the device (heater/humidifier) is on
     if status:
         #if the current temp/hum is at or above the higher end of the range
-        print("Current temp/hum is higher than ideal")
         if d_curr >= h_ideal:
+            print("Current %s is higher than ideal" % (val))
             #Turn the heater/humidifier off
             GPIO.output(pin, 0)
             #If the current temp/hum is above max value, send an alert
-            #if d_curr >= d_max:
-                #print("Alert! Temperature/Humidity is too high.")
-            #if verb is True:
-                #print("Heater/Humidifier has been turned off.")
+            if d_curr >= d_max:
+                print("Alert! %s is too high." % (val))
+            if verb is True:
+                print("%s has been turned off." % (dev))
         else:
-            print("Current temp/hum within ideal range")
+            print("%s is on." % (dev))
                 
     #if the heater/humidifier is off
     elif not status:
         #if the current temp/hum is below the lower end of the range
         if d_curr < l_ideal:
-            print("Current temp/hum is lower than ideal")
+            print("Current %s is lower than ideal" % (val))
             #turn the heater/humidifier on
             GPIO.output(pin, 1)
             #if temp/hum is below minimum, send an alert
-            #if d_curr < d_min:
-                #print("Alert! Temperature/Humiditiy is too low.")
-            #if verb is True:
-                #print("Heater/Humidifier has been turned on.")
+            if d_curr < d_min:
+                print("Alert! %s is too low."  % (val))
+            if verb is True:
+                print("%s has been turned on." % (dev))
         else:
-            print("Current temp/hum within ideal range.")
+            print("%s is off." % (dev))
     else:
         #For debugging purposes
-        print("device boolean is NULL")
-    GPIO.cleanup()
+        print("Device boolean is NULL")
     return
 
 
@@ -85,20 +94,20 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
     #Get the current status of the vent fan
     status = GPIO.input(pin)
     
-    #If the vent van is off
+    #If the vent van is 
     if not status:
         #if the current co2 is at or above the higher end of the range
-        print("Current Co2 is higher than ideal")
         if curr_co2 >= h_ideal:
+            print("Current Co2 is higher than ideal")
             #Turn the fan on
             GPIO.output(pin, 1)
             #If the current co2 is above max value, send an alert
-            #if curr_co2 >= d_max:
-                #print("Alert! Co2 is too high.")
-            #if verb is True:
-                #print("Fan has been turned on.")
+            if curr_co2 >= d_max:
+                print("Alert! Co2 is too high.")
+            if verb is True:
+                print("Fan has been turned on.")
         else:
-            print("Current co2 within ideal range")
+            print("Vent fan is off")
                 
     #if the vent fan is on
     elif status:
@@ -113,11 +122,10 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
             if verb is True:
                 print("Van has been turned off.")
         else:
-            print("Current co2 within ideal range.")
+            print("Vent fan is on")
     else:
         #For debugging purposes
         print("device boolean is NULL")
-    GPIO.cleanup()
     return
 
 #def breeding_light(verb)

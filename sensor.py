@@ -58,8 +58,8 @@ def co2_sensor(verb):
     #Get the readings from the Co2 sensor
     #mult = 0 # 20% sensors requires a multiplier
     ser = serial.Serial("/dev/serial0")
-    ser.write(('M 4\r\n').encode())
-    ser.write(('K 2\r\n').encode())
+#     ser.write(('M 4\r\n').encode())
+#     ser.write(('K 2\r\n').encode())
     ser.flushInput()
     time.sleep(1)
     
