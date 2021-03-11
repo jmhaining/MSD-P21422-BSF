@@ -24,6 +24,7 @@ from dbox_upload import upload
 import dropbox
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
+import urllib.request
 
 
 # Dropbox access token - set to never expire
@@ -40,22 +41,59 @@ def cur_date_time(today, now, verb):
     return today, now
           
 
-def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, fpath):
-    #If the file does not exist, create it, add headers, and add first line of data    
-    #if Yq0EmD6qnQgAAAAAAAAAAU7N34kJ8oe0pIsk5E3haQiD7w_3TJwf_Oaqk9ITdG33 path.exists(fpath): # not sure why token was used here, commented out 2/8 - JN
+def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, fpath):
+    #If the file does not exist, create it, add headers, and add first line of data
     if not path.exists(fpath):
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2'])
-            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2])
+            data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2', 'HEAT STAT', 'HUM STAT', 'FAN STAT', 'LIGHT STAT'])
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
             data_file.close
     #Otherwise, just append new line of data
     else:
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2])
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
             data_file.close()
     return
+
+def db_access():
+        # Initialize Dropbox link; check for access token
+    if (len(TOKEN) == 0):
+        # edited 3-9 JN
+        # sys.exit("ERROR: Looks like the Dropbox access token is missing or expired."
+        print("ERROR: Looks like the Dropbox access token is missing or expired." 
+            "Go to https://www.dropbox.com/developers/apps. Login and click on the" 
+            "MSD-21422 app. Go to settings, generate a new access code and copy it"
+            "in line 30")
+
+    # Create an instance of a Dropbox class, which can make requests to the API.
+    print("Creating a Dropbox object...")
+    # edited 3-9 JN
+    try:
+        dbx = dropbox.Dropbox(TOKEN)
+    except:
+        pass
+
+    # Check that Dropbox access token is valid
+    try:
+        dbx.users_get_current_account()
+        db_connect = True
+    except AuthError as err:
+        #sys.exit("ERROR: Invalid access token; try re-generating an"
+		 #"access token from the app console on the web.")
+        # edited 3-9 JN
+        print("ERROR: Invalid access token; try re-generating an"
+		 "access token from the app console on the web.")
+        db_connect = False
+    return dbx, db_connect
+
+def check_connection(host='http://google.com'):
+    try:
+        urllib.request.urlopen(host)
+        return True
+    except:
+        return False
 
 
 def main(argv):
@@ -76,24 +114,13 @@ def main(argv):
     #Initialize data variables
     in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = 0, 0, 0, 0, 0, 0, 0
     today, now = '0', '0'
-
-    # Initialize Dropbox link; check for access token
-    if (len(TOKEN) == 0):
-        sys.exit("ERROR: Looks like the Dropbox access token is missing or expired."
-	        "Go to https://www.dropbox.com/developers/apps. Login and click on the" 
-		"MSD-21422 app. Go to settings, generate a new access code and copy it"
-		"in line 30")
-
-    # Create an instance of a Dropbox class, which can make requests to the API.
-    print("Creating a Dropbox object...")
-    dbx = dropbox.Dropbox(TOKEN)
-
-    # Check that Dropbox access token is valid
-    try:
-        dbx.users_get_current_account()
-    except AuthError as err:
-        sys.exit("ERROR: Invalid access token; try re-generating an"
-		 "access token from the app console on the web.")
+    
+    connection = check_connection()
+    dbx = 0
+    db_connect = False
+    
+    if connection == True:
+        dbx, db_connect = db_access()
     
     while True:
         today, now = cur_date_time(today, now, verb)
@@ -101,17 +128,21 @@ def main(argv):
         full_path = fpath + file_name
         in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = \
                     sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
-        write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, full_path)
-        relay.relay(in_temp_f, in_hum, co2, verb)
-            
+        heat_stat, hum_stat, fan_stat = relay.relay(in_temp_f, in_hum, co2, verb)
+        write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, full_path)
 
         # Upload the file to Dropbox
-        print("Uploading the file...")
-        upload('/' + file_name, full_path, dbx)
-        print("Upload successful")
+        if check_connection():
+            if db_connect == False:
+                dbx, db_connect = db_access()
+                
+            if db_connect == True:
+                print("Uploading the file...")
+                upload('/' + file_name, full_path, dbx)
+                print("Upload successful")
         
         #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
-        time.sleep(1799.0)
+        time.sleep(599.0)
     return
 
 if __name__ == '__main__':
