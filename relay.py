@@ -183,7 +183,7 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     #Pins are the GPIO pins the devices will be connected too
     #Heater/humidifier/vent are the booleans indicating current status of the devices
         #0 is low or off, 1 is high or on
-    #Verb is the verbose flag, which determines if printing to the shell is done
+    #Verb is the verbose flag, which determines if the code prints to the shell
 
     max_temp = 100
     min_temp = 55
@@ -201,6 +201,9 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     vent_pin = 21
     fan_stat = ''
     
+    light_pin = 25
+    light_stat = ''
+    
     #Check Temperature and control heater
     heat_stat = check_data(max_temp, min_temp, curr_temp, heat_pin, verb)
     #Check humidiity and control humidifier
@@ -208,8 +211,8 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     #Check CO2
     fan_stat = check_co2(max_co2, min_co2, curr_co2, vent_pin, verb)
     #Check light
-        #breeding_light(time?)
-    return heat_stat, hum_stat, fan_stat
+    #light_stat = breeding_light(light_pin, verb)
+    return heat_stat, hum_stat, fan_stat #, light_stat
 
 def init():
     #first time initialization code
