@@ -57,6 +57,7 @@ def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, 
             data_file.close()
     return
 
+
 def db_access():
         # Initialize Dropbox link; check for access token
     if (len(TOKEN) == 0):
@@ -88,7 +89,9 @@ def db_access():
         db_connect = False
     return dbx, db_connect
 
+
 def check_connection(host='http://google.com'):
+    #Check is there is an internet connection by testing connection to google
     try:
         urllib.request.urlopen(host)
         return True
@@ -114,12 +117,13 @@ def main(argv):
     #Initialize data variables
     in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = 0, 0, 0, 0, 0, 0, 0
     today, now = '0', '0'
-    
-    connection = check_connection()
+
     dbx = 0
     db_connect = False
     
-    if connection == True:
+    #Check if connected to internet
+    if check_connection():
+        #If connected to internet, establish dropbox connection
         dbx, db_connect = db_access()
     
     while True:
@@ -131,15 +135,22 @@ def main(argv):
         heat_stat, hum_stat, fan_stat = relay.relay(in_temp_f, in_hum, co2, verb)
         write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, full_path)
 
-        # Upload the file to Dropbox
+        # Check the internet connection
         if check_connection():
+            #If connected to internet but not dropbox
             if db_connect == False:
+                #Establish dropbox connection
                 dbx, db_connect = db_access()
-                
+            
+            #If connected to internet and to dropbox
             if db_connect == True:
+                #Upload file to dropbox
                 print("Uploading the file...")
                 upload('/' + file_name, full_path, dbx)
                 print("Upload successful")
+        #TO-DO:
+            #Add a case for if connection is lost?
+            #If connection is down for more than a day, add a case to upload files that were missed
         
         #sleep in seconds. 60 = 1 minute, 300 = 5 minutes, 1800 = 30 minutes
         time.sleep(599.0)
