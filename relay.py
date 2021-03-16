@@ -19,6 +19,7 @@
 #--------------------------------------------------------------------
 
 import RPi.GPIO as GPIO
+#import time
 
 def check_data(d_max, d_min, d_curr, pin, verb):
     #A range is necessary to prevent the relay from flipping continually as the
@@ -140,14 +141,40 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
         relay_status = 'N/A'
     return relay_status
 
-#def breeding_light(verb)
-    #check 1
-        #turn on light
-    #check 2
-        #turn off light
-    #check 3
-        #pass
-    #return
+
+#def breeding_light(pin, verb)
+    #Breeding light depends on time
+    #Get current hour
+    #hour = int(time.strftime('%H', time.localtime()))
+
+    #GPIO.setmode(GPIO.BCM)
+    #GPIO.setup(pin, GPIO.OUT)
+    
+    #Get the current status of the light
+    #status = GPIO.input(pin)
+
+    #If it's between 9 am and 12 pm
+    #if hour >= 9 and hour < 12
+        #If the light is not already on
+        #if not status
+            #turn on light
+            #print("Turning on breeding light...")
+            #GPIO.output(pin, 1)
+            #relay_status = 'ON'
+    #Else if it's outside that time
+    #elif hour < 9 or hour >= 12
+        #if the light is not already off
+        #if status
+            #turn off light
+            #print("Turning off breeding light...")
+            #GPIO.output(pin, 0)
+            #relay_status = 'OFF'
+    #Else the hour could not be determined
+    #else
+        #print("Time could not be read correctly")
+        #relay_status = 'N/A'
+    #return relay_status
+
 
 def relay(curr_temp, curr_hum, curr_co2, verb):
     
