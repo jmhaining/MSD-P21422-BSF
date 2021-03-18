@@ -26,9 +26,11 @@ from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
 import urllib.request
 
-
-# Dropbox access token - set to never expire
-TOKEN = 'J9guVvDpzgkAAAAAAAAAAVXwt_6nV4NgIRlFwaxZuIYDRbTQwmR3mBiM4x0vVMUo'
+def get_token():
+    file = open("/home/pi/MSD-P21422-BSF/db_token.txt", mode='r')
+    token = file.readline()
+    file.close()
+    return token
 
 def cur_date_time(today, now, verb):
     #Get date and time
@@ -41,29 +43,27 @@ def cur_date_time(today, now, verb):
     return today, now
           
 
-#def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, fpath):
 def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, light_stat, fpath):
     #If the file does not exist, create it, add headers, and add first line of data
     if not path.exists(fpath):
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
             data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2', 'HEAT STAT', 'HUM STAT', 'FAN STAT', 'LIGHT STAT'])
-            #data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
             data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, light_stat])
             data_file.close
     #Otherwise, just append new line of data
     else:
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            #data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
             data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, light_stat])
             data_file.close()
     return
 
 
 def db_access():
-        # Initialize Dropbox link; check for access token
-    if (len(TOKEN) == 0):
+    # Initialize Dropbox link; check for access token
+    token = get_token()
+    if (len(token) == 0):
         # edited 3-9 JN
         # sys.exit("ERROR: Looks like the Dropbox access token is missing or expired."
         print("ERROR: Looks like the Dropbox access token is missing or expired." 
@@ -75,7 +75,7 @@ def db_access():
     print("Creating a Dropbox object...")
     # edited 3-9 JN
     try:
-        dbx = dropbox.Dropbox(TOKEN)
+        dbx = dropbox.Dropbox(token)
     except:
         pass
 
@@ -85,7 +85,7 @@ def db_access():
         db_connect = True
     except AuthError as err:
         #sys.exit("ERROR: Invalid access token; try re-generating an"
-		 #"access token from the app console on the web.")
+		#"access token from the app console on the web.")
         # edited 3-9 JN
         print("ERROR: Invalid access token; try re-generating an"
 		 "access token from the app console on the web.")
@@ -135,9 +135,7 @@ def main(argv):
         full_path = fpath + file_name
         in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = \
                     sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
-        #heat_stat, hum_stat, fan_stat = relay.relay(in_temp_f, in_hum, co2, verb)
         heat_stat, hum_stat, fan_stat, light_stat = relay.relay(in_temp_f, in_hum, co2, verb)
-        #write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, full_path)
         write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, light_stat, full_path)
 
         # Check the internet connection
