@@ -19,7 +19,7 @@
 #--------------------------------------------------------------------
 
 import RPi.GPIO as GPIO
-#import time
+import time
 
 def check_data(d_max, d_min, d_curr, pin, verb):
     #A range is necessary to prevent the relay from flipping continually as the
@@ -32,7 +32,7 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     h_ideal = 80
     m_ideal = 70
     l_ideal = 65
-    relay_status = ''
+    relay_status = 0
     
     if pin == 16:
         dev = "heater"
@@ -53,12 +53,12 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     #If the device (heater/humidifier) is on
     if status:
         #if the current temp/hum is at or above the higher end of the range
-        relay_status = 'ON'
+        relay_status = 1
         if d_curr >= h_ideal:
             print("Current %s is higher than ideal" % (val))
             #Turn the heater/humidifier off
             GPIO.output(pin, 0)
-            relay_status = 'OFF'
+            relay_status = 0
             #If the current temp/hum is above max value, send an alert
             if d_curr >= d_max:
                 print("Alert! %s is too high." % (val))
@@ -70,12 +70,12 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     #if the heater/humidifier is off
     elif not status:
         #if the current temp/hum is below the lower end of the range
-        relay_status = 'OFF'
+        relay_status = 0
         if d_curr < l_ideal:
             print("Current %s is lower than ideal" % (val))
             #turn the heater/humidifier on
             GPIO.output(pin, 1)
-            relay_status = 'ON'
+            relay_status = 1
             #if temp/hum is below minimum, send an alert
             if d_curr < d_min:
                 print("Alert! %s is too low."  % (val))
@@ -86,7 +86,7 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     else:
         #For debugging purposes
         print("Device boolean is NULL")
-        relay_status = 'N/A'
+        relay_status = -1
     return relay_status
 
 
@@ -95,7 +95,7 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
     h_ideal = 1800
     m_ideal = 1500
     l_ideal = 1300
-    relay_status = ''
+    relay_status = -1
     #GPIO.setmode(GPIO.BCM)
     GPIO.setup(pin, GPIO.OUT)
     
@@ -104,13 +104,13 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
     
     #If the vent van is 
     if not status:
-        relay_status = 'OFF'
+        relay_status = 0
         #if the current co2 is at or above the higher end of the range
         if curr_co2 >= h_ideal:
             print("Current Co2 is higher than ideal")
             #Turn the fan on
             GPIO.output(pin, 1)
-            relay_status = 'ON'
+            relay_status = 1
             #If the current co2 is above max value, send an alert
             if curr_co2 >= d_max:
                 print("Alert! Co2 is too high.")
@@ -121,13 +121,13 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
                 
     #if the vent fan is on
     elif status:
-        relay_status = 'ON'
+        relay_status = 1
         #if the current co2 is below the lower end of the range
         if curr_co2 < l_ideal:
             print("Current co2 is lower than ideal")
             #turn the fan off
             GPIO.output(pin, 0)
-            relay_status = 'OFF'
+            relay_status = 0
             #if co2 is below minimum, send an alert
             if d_curr < d_min:
                 print("Alert! Co2 is too low.")
@@ -138,42 +138,43 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
     else:
         #For debugging purposes
         print("device boolean is NULL")
-        relay_status = 'N/A'
+        relay_status = -1
     return relay_status
 
 
-#def breeding_light(pin, verb)
+def breeding_light(pin, verb):
     #Breeding light depends on time
     #Get current hour
-    #hour = int(time.strftime('%H', time.localtime()))
+    hour = int(time.strftime('%H', time.localtime()))
+    relay_status = -1
 
-    #GPIO.setmode(GPIO.BCM)
-    #GPIO.setup(pin, GPIO.OUT)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pin, GPIO.OUT)
     
     #Get the current status of the light
-    #status = GPIO.input(pin)
+    status = GPIO.input(pin)
 
     #If it's between 9 am and 12 pm
-    #if hour >= 9 and hour < 12
+    if hour >= 9 and hour < 12:
         #If the light is not already on
-        #if not status
+        if not status:
             #turn on light
-            #print("Turning on breeding light...")
-            #GPIO.output(pin, 1)
-            #relay_status = 'ON'
+            print("Turning on breeding light...")
+            GPIO.output(pin, 1)
+        relay_status = 1
     #Else if it's outside that time
-    #elif hour < 9 or hour >= 12
+    elif hour < 9 or hour >= 12:
         #if the light is not already off
-        #if status
+        if status:
             #turn off light
-            #print("Turning off breeding light...")
-            #GPIO.output(pin, 0)
-            #relay_status = 'OFF'
+            print("Turning off breeding light...")
+            GPIO.output(pin, 0)
+        relay_status = 0
     #Else the hour could not be determined
-    #else
-        #print("Time could not be read correctly")
-        #relay_status = 'N/A'
-    #return relay_status
+    else:
+        print("Time could not be read correctly")
+        relay_status = -1
+    return relay_status
 
 
 def relay(curr_temp, curr_hum, curr_co2, verb):
@@ -211,8 +212,8 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     #Check CO2
     fan_stat = check_co2(max_co2, min_co2, curr_co2, vent_pin, verb)
     #Check light
-    #light_stat = breeding_light(light_pin, verb)
-    return heat_stat, hum_stat, fan_stat #, light_stat
+    light_stat = breeding_light(light_pin, verb)
+    return heat_stat, hum_stat, fan_stat, light_stat
 
 def init():
     #first time initialization code

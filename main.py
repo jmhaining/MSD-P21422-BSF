@@ -41,22 +41,22 @@ def cur_date_time(today, now, verb):
     return today, now
           
 
-def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, fpath):
-#def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, light_stat, fpath):
+#def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, fpath):
+def write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, light_stat, fpath):
     #If the file does not exist, create it, add headers, and add first line of data
     if not path.exists(fpath):
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
             data.writerow(['DATE', 'TIME', 'OUTDOOR TEMP C', 'OUTDOOR TEMP F', 'INDOOR TEMP C', 'INDOOR TEMP F', 'OUTDOOR HUMIDITY', 'INDOOR HUMIDITY', 'CO2', 'HEAT STAT', 'HUM STAT', 'FAN STAT', 'LIGHT STAT'])
-            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
-            #data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, light_stat])
+            #data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, light_stat])
             data_file.close
     #Otherwise, just append new line of data
     else:
         with open(fpath, mode='a') as data_file:
             data = csv.writer(data_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
-            #data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, light_stat])
+            #data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, 'N/A'])
+            data.writerow([today, now, out_temp_c, out_temp_f, in_temp_c, in_temp_f, out_hum, in_hum, co2, heat_stat, hum_stat, fan_stat, light_stat])
             data_file.close()
     return
 
@@ -135,10 +135,10 @@ def main(argv):
         full_path = fpath + file_name
         in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2 = \
                     sensor.sensor(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, verb)
-        heat_stat, hum_stat, fan_stat = relay.relay(in_temp_f, in_hum, co2, verb)
-        #heat_stat, hum_stat, fan_stat, light_stat = relay.relay(in_temp_f, in_hum, co2, verb)
-        write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, full_path)
-        #write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, light_stat, full_path)
+        #heat_stat, hum_stat, fan_stat = relay.relay(in_temp_f, in_hum, co2, verb)
+        heat_stat, hum_stat, fan_stat, light_stat = relay.relay(in_temp_f, in_hum, co2, verb)
+        #write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, full_path)
+        write_to_csv(in_temp_f, in_temp_c, out_temp_f, out_temp_c, in_hum, out_hum, co2, today, now, heat_stat, hum_stat, fan_stat, light_stat, full_path)
 
         # Check the internet connection
         if check_connection():
