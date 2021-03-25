@@ -112,7 +112,7 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
             GPIO.output(pin, 1)
             relay_status = 1
             #If the current co2 is above max value, send an alert
-            if curr_co2 >= d_max:
+            if curr_co2 >= max_co2:
                 print("Alert! Co2 is too high.")
             if verb is True:
                 print("Fan has been turned on.")
@@ -129,7 +129,7 @@ def check_co2(max_co2, min_co2, curr_co2, pin, verb):
             GPIO.output(pin, 0)
             relay_status = 0
             #if co2 is below minimum, send an alert
-            if d_curr < d_min:
+            if curr_co2 < min_co2:
                 print("Alert! Co2 is too low.")
             if verb is True:
                 print("Van has been turned off.")
@@ -189,21 +189,21 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     max_temp = 100
     min_temp = 55
     heat_pin = 16
-    heat_stat = ''
+    heat_stat = 0
     
     max_hum = 100
     min_hum = 50
     hum_pin = 20
-    hum_stat = ''
+    hum_stat = 0
     
     max_co2 = 2000
     ideal_co2 = 1500
     min_co2 = 1000
     vent_pin = 21
-    fan_stat = ''
+    fan_stat = 0
     
     light_pin = 25
-    light_stat = ''
+    light_stat = 0
     
     #Check Temperature and control heater
     heat_stat = check_data(max_temp, min_temp, curr_temp, heat_pin, verb)
@@ -216,8 +216,9 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     return heat_stat, hum_stat, fan_stat, light_stat
 
 def init():
-    #first time initialization code
-    print("Initializing relays...")
+    #initialization code
+    now = time.strftime('%I:%M%p', time.localtime())
+    print("Initializing relays at %s..." % (now))
     pin_list = [16, 20, 21, 25]
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pin_list, GPIO.OUT)
