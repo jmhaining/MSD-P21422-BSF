@@ -6,9 +6,25 @@ Purpose: to monitor and control the environment for the Black Soldier Fly Smart 
 	on the RIT campus.
 
 Files:
-	main.py   : outputs environmental data to a CSV file for analysis
-	relay.py  : controls electrical relay that manage vent, humidifier, and heater
-	sensor.py : collects environmental data from sensors
+	main.py   	: outputs environmental data to a CSV file for analysis
+	relay.py  	: controls electrical relay that manage vent, humidifier, and heater
+	sensor.py 	: collects environmental data from sensors
+	dbox_upload.py	: uploads csv files to dropbox
+
+## Information
+
+This program was written with the intent to monitor and control the environment within a small shed
+and maintain conditions for black soldier fly breeding and composting. This is done with the use of
+three sensors, 2 temperature/humidity sensors and 1 co2 sensor, and four relays connected to devices
+necessary to control the environment, a breeding light, heater, humidifier, and vent.
+
+The software is set to collect and save data every 10 minutes.
+
+If the software is not already running, Crontab has been configured to automatically attempt to run 
+the program every 15 minutes.
+
+'/home/pi/MSD-P21422-BSF/Logs' contains log.txt, which contains all printed outputs of the software
+as well as any error messages.
 
 ## Usage
 
@@ -16,7 +32,7 @@ To run the program from the shell, navigate to the folder containing main.py
 and use the following command:
 
 ```
-	python3.5 main.py (-v[erbose])
+	python3 main.py (-v[erbose])
 ```
 
 -v flag is an optional argument to determine if the program prints to the 
@@ -33,6 +49,8 @@ shell or not. If -v is set, program should print something like:
  	Temperature: 21.74*C [71.09*F]
 	Relative Humidity: 35.21%
 	Dew Point: 5.12*C
+
+	CO2 PPM: 800
 ```
 
 
@@ -40,7 +58,7 @@ If the program is running in the background and you need to kill it, first obtai
 list of currently running processes by running the following command
 
 ```
-	ps aux | grep python3.5
+	ps aux | grep python3
 ```
 A list of currently running python processes should appear. You can determine which is
 the program by the filepath listed in the processes.
