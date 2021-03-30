@@ -69,5 +69,3 @@ Find the PID, which is the number in the second column, and run the following co
 ```
 
 Run the 'ps aux' command again to confirm the program is killed
-
-## License
