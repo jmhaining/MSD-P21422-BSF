@@ -175,18 +175,19 @@ def breeding_light(pin, verb):
     return relay_status
 
 def get_ranges(data):
-    #open data_range.txt
-    #iterate through file
-    #if line contains data
-        #get max
-        #get h_ideal = max - (max*0.2)
-        #get min
-        #get l_ideal = min + (min*.2)
-    #if h_ideal < l_deal:
-        #temp = h_ideal
-        #h_ideal = l_ideal
-        #l_ideal = temp
-    #return max, min, h_ideal, l_ideal
+    with open("/home/pi/MSD-P21422-BSF/data_ranges.txt", mode='r') as file:
+        for line in file:
+            if data in line:
+                values = line.split()
+                d_max = values[3] + 1
+                d_min = values[5] + 2
+    h_ideal = d_max - (d_max*0.2)
+    l_ideal = d_min + (d_min*.2)
+    if h_ideal < l_deal:
+        temp = h_ideal
+        h_ideal = l_ideal
+        l_ideal = temp
+    return d_max, d_min, h_ideal, l_ideal
 
 
 def relay(curr_temp, curr_hum, curr_co2, verb):
