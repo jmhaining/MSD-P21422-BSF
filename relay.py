@@ -21,19 +21,16 @@
 import RPi.GPIO as GPIO
 import time
 
-def check_data(d_max, d_min, d_curr, pin, verb):
+def check_data(d_max, d_min, d_curr, h_ideal, l_ideal, pin, verb):
     #A range is necessary to prevent the relay from flipping continually as the
     # temp or humidity hovers around d_ideal. For example, if d_curr is 71 F then
     # the heater will turn off, then turn on again if d_curr falls to 69 F, only
     # to turn off when d_curr rises to 71 again.
-    #As the min to max range for temp is 55 F to 100 F, and humidity is
-    # 50% to 100%, the same ideal range will be used for both:
-    # 65 %/F to 80 %/F
-    h_ideal = 80
-    m_ideal = 70
-    l_ideal = 65
+    #The maximum and minimum for Temperature, Humidity, and Co2 are specified in 
+    # "data_ranges.txt"
     relay_status = 0
     
+    #based on the pin number passed, determine if the device in question is the heater or humidifier
     if pin == 16:
         dev = "heater"
         val = "temperature"
@@ -90,11 +87,10 @@ def check_data(d_max, d_min, d_curr, pin, verb):
     return relay_status
 
 
-def check_co2(max_co2, min_co2, curr_co2, pin, verb):
+def check_co2(max_co2, min_co2, curr_co2, h_ideal, l_ideal, pin, verb):
     
-    h_ideal = 1800
-    m_ideal = 1500
-    l_ideal = 1300
+    #h_ideal = 1800
+    #l_ideal = 1300
     relay_status = -1
     #GPIO.setmode(GPIO.BCM)
     GPIO.setup(pin, GPIO.OUT)
@@ -176,6 +172,29 @@ def breeding_light(pin, verb):
         relay_status = -1
     return relay_status
 
+def get_ranges(data):
+    #Retrieves the maximum and minimum of Temperature, Humidity, and Co2
+    # from "data_ranges.txt" and calculates a range based on those values
+    with open("/home/pi/MSD-P21422-BSF/data_ranges.txt", mode='r') as file:
+        for line in file:
+            #Look for 'data' i.e. "Temperature" in file and split at spaces
+            if data in line:
+                values = line.split()
+                #get the max and min values
+                d_max = int(values[3])
+                d_min = int(values[5])
+                
+    #Calculate high and low end of the range
+    h_ideal = d_max - (d_max*0.2)
+    l_ideal = d_min + (d_min*.2)
+    
+    #if the high end is somehow less than the low end, flip them
+    if h_ideal < l_ideal:
+        temp = h_ideal
+        h_ideal = l_ideal
+        l_ideal = temp
+    return d_max, d_min, h_ideal, l_ideal
+
 
 def relay(curr_temp, curr_hum, curr_co2, verb):
     
@@ -186,19 +205,15 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
         #0 is low or off, 1 is high or on
     #Verb is the verbose flag, which determines if the code prints to the shell
 
-    max_temp = 100
-    min_temp = 55
+    max_temp, min_temp, temp_h, temp_l = get_ranges("Temperature")
     heat_pin = 16
     heat_stat = 0
     
-    max_hum = 100
-    min_hum = 50
+    max_hum, min_hum, hum_h, hum_l = get_ranges("Humidity")
     hum_pin = 20
     hum_stat = 0
     
-    max_co2 = 2000
-    ideal_co2 = 1500
-    min_co2 = 1000
+    max_co2, min_co2, co2_h, co2_l = get_ranges("Co2")
     vent_pin = 21
     fan_stat = 0
     
@@ -206,11 +221,11 @@ def relay(curr_temp, curr_hum, curr_co2, verb):
     light_stat = 0
     
     #Check Temperature and control heater
-    heat_stat = check_data(max_temp, min_temp, curr_temp, heat_pin, verb)
+    heat_stat = check_data(max_temp, min_temp, curr_temp, temp_h, temp_l, heat_pin, verb)
     #Check humidiity and control humidifier
-    hum_stat = check_data(max_hum, min_hum, curr_hum, hum_pin, verb)
+    hum_stat = check_data(max_hum, min_hum, curr_hum, hum_h, hum_l, hum_pin, verb)
     #Check CO2
-    fan_stat = check_co2(max_co2, min_co2, curr_co2, vent_pin, verb)
+    fan_stat = check_co2(max_co2, min_co2, curr_co2, co2_h, co2_l, vent_pin, verb)
     #Check light
     light_stat = breeding_light(light_pin, verb)
     return heat_stat, hum_stat, fan_stat, light_stat
@@ -231,3 +246,4 @@ if __name__ == '__main__':
     pass
 else:
     init()
+
